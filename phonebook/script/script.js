@@ -221,15 +221,15 @@ const data = [
   };
 
   // ф-ия для текста footer будет принимать titleFooter
-  const titleFooter = (titleFooter) => {
-    // добавляем заголовк h2
-    const footerText = document.createElement('h2');
-    // добавляем класс для h2
-    h2.classList.add('logo');
-    // добавим содержимое для h2, в title попадет наше имя из phoneBookInit (html)
-    h2.textContent = `Телефонный справочник. ${title}`;
-    // возвращаем h1
-    return h2;
+  const footerText = (title) => {
+    // добавляем текст
+    const footerCopyRight = document.createElement('p');
+    // добавляем класс для p
+    footerCopyRight.classList.add('div');
+    // добавим содержимое для p, в title попадет наше имя из phoneBookInit (html)
+    footerCopyRight.textContent = `Все права защищены © ${title}`;
+    // возвращаем p
+    return footerCopyRight;
   };
 
   // добавляем footer
@@ -260,6 +260,7 @@ const data = [
     // добавляем footer
     // создаем header, вызываем ф-ию createHeader
     const footer = createFooter();
+    const footerCopyRight = footerText(title);
     // добавляем footer
 
     // переменная для таблицы (вызываем)
@@ -271,7 +272,7 @@ const data = [
     // вставим в mainContainer кнопки и таблицу
     main.mainContainer.append(buttonGroup.btnWrapper, table, form.overlay);
     // вставляем logo (h1), footer;
-    app.append(header, main, footer);
+    app.append(header, main, footer, footerCopyRight);
 
     // ф-ия обратно будет возвращать объект (св-во list и tbody)
     return {
