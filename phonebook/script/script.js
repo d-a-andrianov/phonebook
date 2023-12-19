@@ -271,8 +271,10 @@ const data = [
     header.headerContainer.append(logo);
     // вставим в mainContainer кнопки и таблицу
     main.mainContainer.append(buttonGroup.btnWrapper, table, form.overlay);
+    // добавляем в footer тег с footerCopyRight
+    footer.footerContainer.append(footerCopyRight);
     // вставляем logo (h1), footer;
-    app.append(header, main, footer, footerCopyRight);
+    app.append(header, main, footer);
 
     // ф-ия обратно будет возвращать объект (св-во list и tbody)
     return {
