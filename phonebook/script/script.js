@@ -88,7 +88,7 @@ const data = [
     btnWrapper.classList.add('btn-wrapper');
 
     // перебираем params с помощью метода map, деструктурируем и будем возвращать кнопки
-    const btns = params.map(({className, type, text}) => {
+    const btns = params.map(({ className, type, text }) => {
       // создаем кнопки
       const button = document.createElement('button');
       // заполняем кнопки данными:
@@ -244,9 +244,9 @@ const data = [
     const main = createMain();
     // вызываем ф-ию buttonGroup и добавляем туда массив
     const buttonGroup = createButtonsGroup([
-      // для кнопок
+      // классы, типы, текст для кнопок
       {
-        className: 'btn btn-primary mr-3',
+        className: 'btn btn-primary mr-3 js-add',
         type: 'button',
         text: 'Добавить',
       },
@@ -276,9 +276,16 @@ const data = [
     // вставляем logo (h1), footer;
     app.append(header, main, footer);
 
-    // ф-ия обратно будет возвращать объект (св-во list и tbody)
+    // ф-ия обратно будет возвращать объект (св-во list, tbody и logo)
     return {
       list: table.tbody,
+      logo,
+      // кнопка для скрипта открытия модального окна (работает на кнопке "добавить")
+      btnAdd: buttonGroup.btns[0],
+      // overlay от формы, чтобы ее показать
+      formOverlay: form.overlay,
+      // вернем форму
+      form: form.form,
     };
   };
 
@@ -309,12 +316,12 @@ const data = [
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
-
+    // в tr передаем номер телефона  
+    tr.phoneLink = phoneLink;
     // добавляем в tdPhone ссылку
     tdPhone.append(phoneLink);
     // вставим td в tr
     tr.append(tdDel, tdName, tdSurname, tdPhone);
-
 
     // возвращаем tr;
     return tr;
@@ -323,23 +330,85 @@ const data = [
 
   // ф-ия renderContacts
   const renderContacts = (elem, data) => {
-    // создаем какие-то эл-ты (строку) и передаем их на страницу, перебираем с помощью map
+    // перебираем массив data с помощью метода map, используя ф-ию createRow и создаем эл-ты (строки)
     const allRow = data.map(createRow);
-    // выводим то что получилось (строку) на страницу
+    // загружаем то что получилось (строки) на страницу
     elem.append(...allRow);
+    // возвращаем ячейки allRow
+    return allRow;
   };
+
+  // напишем ф-ию hoverRow для получения в шапку текста при наведении на телефон. Принимаем в ф-ию allRow и logo
+  const hoverRow = (allRow, logo) => {
+    // в замыкании будет храниться текст (первоначальный заголовок)
+    const text = logo.textContent;
+
+    // перебираем все строки allRow с помощью forEach
+    allRow.forEach(contact => {
+      // при наведении мыши на строку (contact), будем вызывать ф-ию с помощью addEventListener, которая будет выводить в консоль mouseEnter и строку (contact)
+      contact.addEventListener('mouseenter', () => {
+        logo.textContent = contact.phoneLink.textContent;
+      });
+      // когда мышка уводится вбок от номера телефона (mouseleave), в заголовке будет заголовок
+      contact.addEventListener('mouseleave', () => {
+        // возвращаем первоначальный текст (заголовок) когда мышка уехала
+        logo.textContent = text;
+      });
+    });
+  };
+
+
 
   // ф-ия init будет принимать селектор со страницы и заголовок
   const init = (selectorApp, title) => {
     // получим эл-т по селектору
     const app = document.querySelector(selectorApp);
     const phoneBook = renederPhoneBook(app, title);
-    // делаем реструктуризацию из phoneBook
-    const {list} = phoneBook;
+    // делаем реструктуризацию из phoneBook (получаем list, logo, form)
+    const { list, logo, btnAdd, formOverlay, form } = phoneBook;
 
-    // вызываем ф-ию
-    renderContacts(list, data);
     // Функционал
+
+    // получаем строки allRow
+    const allRow = renderContacts(list, data);
+
+    // вызываем ф-ию hoverRow, передаем туда все строки allRow и logo
+    hoverRow(allRow, logo);
+
+    // при клике на кнопку добавить будет открываться модальное окно
+    btnAdd.addEventListener('click', () => {
+      // добавляем класс для formOverlay, делаем видимым модальное окно (форма)
+      formOverlay.classList.add('is-visible');
+    });
+
+    // при клике по форме добавляем событие, чтобы она не закрывалась (используем stopPropagation или stopImmediatePropagation)
+    form.addEventListener('click', event => {
+      event.stopImmediatePropagation();
+    });
+
+    // на formoverlay (фон когда форма активна) вешаем событие для закрытия модального окна
+    formOverlay.addEventListener('click', () => {
+      // удаляем класс для formOverlay, делаем невидимым модальное окно (форма)
+      formOverlay.classList.remove('is-visible');
+    });
+
+    // события для моб устройств
+    // touchstart аналог mouse down - прикосновение к dom эл-ту
+    document.addEventListener('touchstart', e => {
+      console.log(e.type);
+    });
+     // touchstart аналог mouse move - движение пальцем по dom эл-ту
+    document.addEventListener('touchmove', e => {
+      console.log(e.type);
+    });
+
+    // touchstart аналог mouse up - событие когда палец убираем с dom эл-та
+    document.addEventListener('touchend', e => {
+      console.log(e.type);
+    });
+
+    
+    
   };
   // ф-ия, которая будет инициализировать наше приложение
   window.phoneBookInit = init;
