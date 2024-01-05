@@ -397,7 +397,7 @@ const data = [
     document.addEventListener('touchstart', e => {
       console.log(e.type);
     });
-     // touchstart аналог mouse move - движение пальцем по dom эл-ту
+    // touchstart аналог mouse move - движение пальцем по dom эл-ту
     document.addEventListener('touchmove', e => {
       console.log(e.type);
     });
@@ -406,9 +406,6 @@ const data = [
     document.addEventListener('touchend', e => {
       console.log(e.type);
     });
-
-    
-    
   };
   // ф-ия, которая будет инициализировать наше приложение
   window.phoneBookInit = init;
