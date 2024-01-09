@@ -282,6 +282,8 @@ const data = [
       logo,
       // кнопка для скрипта открытия модального окна (работает на кнопке "добавить")
       btnAdd: buttonGroup.btns[0],
+      // кнопка удалить (работает на кнопке "удалить")
+      btnDel: buttonGroup.btns[1],
       // overlay от формы, чтобы ее показать
       formOverlay: form.overlay,
       // вернем форму
@@ -291,9 +293,10 @@ const data = [
 
   // ф-ия для передачи данных из объекта (делаем деструктуризацию, name использовать нежелательно, переименуем
   const createRow = ({ name: firstname, surname, phone }) => {
-
     // создаем строки
     const tr = document.createElement('tr');
+    // добавим класс для реализации удаления строки
+    tr.classList.add('contact');
 
     const tdDel = document.createElement('td');
     // добавляем класс для tdDel (скрыть кнопки)
@@ -316,7 +319,7 @@ const data = [
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
-    // в tr передаем номер телефона  
+    // в tr передаем номер телефона
     tr.phoneLink = phoneLink;
     // добавляем в tdPhone ссылку
     tdPhone.append(phoneLink);
@@ -357,15 +360,20 @@ const data = [
     });
   };
 
-
-
   // ф-ия init будет принимать селектор со страницы и заголовок
   const init = (selectorApp, title) => {
     // получим эл-т по селектору
     const app = document.querySelector(selectorApp);
     const phoneBook = renederPhoneBook(app, title);
-    // делаем реструктуризацию из phoneBook (получаем list, logo, form)
-    const { list, logo, btnAdd, formOverlay, form } = phoneBook;
+    // делаем реструктуризацию из phoneBook (получаем list, logo, form, btnDel)
+    const {
+      list,
+      logo,
+      btnAdd,
+      formOverlay,
+      form,
+      btnDel,
+    } = phoneBook;
 
     // Функционал
 
@@ -381,15 +389,22 @@ const data = [
       formOverlay.classList.add('is-visible');
     });
 
-    // при клике по форме добавляем событие, чтобы она не закрывалась (используем stopPropagation или stopImmediatePropagation)
-    form.addEventListener('click', event => {
-      event.stopImmediatePropagation();
-    });
+    // // при клике по форме добавляем событие, чтобы она не закрывалась (используем stopPropagation или stopImmediatePropagation)
+    // form.addEventListener('click', event => {
+    //   event.stopImmediatePropagation();
+    // });
 
-    // на formoverlay (фон когда форма активна) вешаем событие для закрытия модального окна
-    formOverlay.addEventListener('click', () => {
-      // удаляем класс для formOverlay, делаем невидимым модальное окно (форма)
-      formOverlay.classList.remove('is-visible');
+    // на formoverlay (фон когда форма активна) вешаем событие для закрытия модального окна при клике по оверлею ((используем вместо stopPropagation или stopImmediatePropagation))
+    formOverlay.addEventListener('click', e => {
+      // запишем target константу для сокращения записи e.target;
+      const target = e.target;
+      // проверяем, что target это formOverlay или имеет класс close
+      if (target === formOverlay ||
+        target.classList.contains('close')) {
+        // если это так то
+        // удаляем класс для formOverlay, делаем невидимым модальное окно (форма)
+        formOverlay.classList.remove('is-visible');
+      }
     });
 
     // события для моб устройств
@@ -406,6 +421,40 @@ const data = [
     document.addEventListener('touchend', e => {
       console.log(e.type);
     });
+
+    // при клике на кнопку удалить вешаем событие
+    btnDel.addEventListener('click', () => {
+      // получаем всё что есть с классом delete и перебираем с помощью forEach
+      document.querySelectorAll('.delete').forEach(del => {
+        // будем добавлять класс is-visible (toggle)
+        del.classList.toggle('is-visible');
+      });
+    });
+
+    // с помощью делегирования буем кликать по всему листу (list это вся область tbody)
+    // и в этой области определять клик (используем event (e) target)
+    list.addEventListener('click', e => {
+      // запишем target константу для сокращения записи e.target;
+      const target = e.target;
+      // при клике будем проверять, что event target соответствует кнопке крестик (del-icon)
+      //  (можно использовать classList.contains вместо closest)
+      if (target.closest('.del-icon')) {
+        // поднимаемся до эл-та с классом contact и удаляем его
+        target.closest('.contact').remove();
+      }
+    });
+
+    // // ф-ия для вставления строки через определенное время, ф-ия вызывает готовую ф-ию по созданию строки createRow и передает туда объект с 3 св-вами
+    // setTimeout(() => {
+    //   const contact = createRow({
+    //     name: 'Дмитрий',
+    //     surname: 'Андрианов',
+    //     phone: '+7987666',
+    //   });
+    //   // втсавляем строчку tr (contact)
+    //   list.append(contact);
+    //   // добавляем через 2 секунды
+    // }, 2000);
   };
   // ф-ия, которая будет инициализировать наше приложение
   window.phoneBookInit = init;
